@@ -1,5 +1,7 @@
 docker run \
     --rm \
-    -v elk_docker_es_vol:/usr/share/elasticsearch/data \
+    --volumes_from elasticsearch \
     -v $(pwd)/backup:/backup \
-    ubuntu tar cvf /backup/elk_docker_es_vol.tar /usr/share/elasticsearch/data
+    ubuntu \
+        bash -c "cd /usr/share/elasticsearch/data && \
+        tar cvf /backup/elk_docker_es_vol.tar ."
