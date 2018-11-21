@@ -1,0 +1,4 @@
+- pipeline.id: apache-logs
+  path.config: "/usr/share/logstash/config/pipeline.conf"
+#- pipeline.id: my-other-pipeline
+#  path.config: "/usr/share/logstash/config/p2.cfg"

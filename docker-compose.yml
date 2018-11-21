@@ -1,0 +1,57 @@
+version: '3'
+services:
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+        container_name: elasticsearch
+        environment:
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        volumes:
+            - es_vol:/usr/share/elasticsearch/data
+        networks:
+            - elk_net
+        ports:
+            - 9200:9200
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana:6.4.3
+        container_name: kibana
+        environment:
+            - SERVER_HOST=0.0.0.0
+            - ELASTICSEARCH_URL=http://elasticsearch:9200
+        depends_on:
+            - elasticsearch
+#        volumes:
+#            - ./data/kibana.yml:/usr/share/kibana/config/kibana.yml
+        networks:
+            - elk_net
+        ports:
+            - 5601:5601
+
+    logstash:
+        image: docker.elastic.co/logstash/logstash:6.4.3
+        container_name: logstash
+        networks:
+            - elk_net
+        ports:
+            - 5959:5959
+            - 5044:5044
+        depends_on:
+            - elasticsearch
+        volumes:
+            - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+            - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+            - ./logstash/config/pipeline.conf:/usr/share/logstash/config/pipeline.conf
+        command: logstash --config.reload.automatic
+
+volumes:
+    es_vol:
+        driver: local
+
+networks:
+    elk_net:
+        driver: bridge
